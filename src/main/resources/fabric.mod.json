@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "myfirstminecraftmod",
+  "version": "${version}",
+  "name": "MyFirstMinecraftMod",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/myfirstminecraftmod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "neoemo.mods.myfirstminecraftmod.client.MyfirstminecraftmodDataGenerator"
+    ],
+    "client": [
+      "neoemo.mods.myfirstminecraftmod.client.MyfirstminecraftmodClient"
+    ],
+    "main": [
+      "neoemo.mods.myfirstminecraftmod.Myfirstminecraftmod"
+    ]
+  },
+  "mixins": [
+    "myfirstminecraftmod.mixins.json",
+    {
+      "config": "myfirstminecraftmod.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
