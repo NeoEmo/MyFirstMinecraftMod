@@ -2,6 +2,7 @@ package neoemo.mods.myfirstminecraftmod;
 
 import neoemo.mods.myfirstminecraftmod.configs.ModConfig;
 import neoemo.mods.myfirstminecraftmod.managers.ConfigManager;
+import neoemo.mods.myfirstminecraftmod.utils.Tags;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
@@ -42,9 +43,9 @@ public class Myfirstminecraftmod implements ModInitializer {
                     /* Во всех случаях на всякий стоит замена имени,
                        в случае если кому-то надо вывести имя игрока в каком-то из них
                      */
-                    String msg1 = CONFIG.joinMessage.replace("%player%", playerName);
-                    String msg2 = CONFIG.joinMessage2.replace("%player%", playerName);
-                    String msg3 = CONFIG.joinMessage3.replace("%player%", playerName);
+                    String msg1 = CONFIG.joinMessage.replace(Tags.getPlayer(), playerName);
+                    String msg2 = CONFIG.joinMessage2.replace(Tags.getPlayer(), playerName);
+                    String msg3 = CONFIG.joinMessage3.replace(Tags.getPlayer(), playerName);
 
                     handler.getPlayer().sendMessage(Text.of(msg1), false);
                     handler.getPlayer().sendMessage(Text.of(msg2), false);
@@ -58,7 +59,7 @@ public class Myfirstminecraftmod implements ModInitializer {
             if (messageText.equalsIgnoreCase(CONFIG.triggerMessage)) {
                 String playerName = sender.getName().getString();
 
-                String replyMessage = CONFIG.replyMessage.replace("%player%", playerName);
+                String replyMessage = CONFIG.replyMessage.replace(Tags.getPlayer(), playerName);
                 sender.sendMessage(Text.literal(replyMessage), false);
             }
         });
