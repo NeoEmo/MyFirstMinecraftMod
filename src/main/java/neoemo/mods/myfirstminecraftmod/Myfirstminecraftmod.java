@@ -2,6 +2,9 @@ package neoemo.mods.myfirstminecraftmod;
 
 import neoemo.mods.myfirstminecraftmod.configs.ModConfig;
 import neoemo.mods.myfirstminecraftmod.managers.ConfigManager;
+import neoemo.mods.myfirstminecraftmod.utils.Cards.Card;
+import neoemo.mods.myfirstminecraftmod.utils.Cards.Deck;
+import neoemo.mods.myfirstminecraftmod.utils.Cards.Suit;
 import neoemo.mods.myfirstminecraftmod.utils.Random;
 import neoemo.mods.myfirstminecraftmod.utils.Tags;
 import net.fabricmc.api.ModInitializer;
@@ -14,11 +17,17 @@ import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class Myfirstminecraftmod implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("myfirstminecraftmod");
 
     public static ModConfig CONFIG;
+    private static final Map<UUID, Long> lastCardDrawTime = new HashMap<>();
+    private static final Long COOLDOWN_TICKS = 24000L;
 
     @Override
     public void onInitialize() {
@@ -82,6 +91,45 @@ public class Myfirstminecraftmod implements ModInitializer {
                 } catch (NumberFormatException e) {
                     sender.sendMessage(Text.literal("§cОшибка! Напиши число. Пример: " + CONFIG.random + " 10"), false);
                 }
+            }
+
+            if(messageText.equalsIgnoreCase(CONFIG.cardTrigger)) {
+                UUID playerID = sender.getUuid();
+                long currentTime = sender.getServerWorld().getTime();
+
+                if (lastCardDrawTime.containsKey(playerID)) {
+                    long lastDrawTime = lastCardDrawTime.get(playerID);
+                    long timePassed = currentTime - lastDrawTime;
+
+                    if (timePassed < COOLDOWN_TICKS) {
+                        long timeLeft = COOLDOWN_TICKS - timePassed;
+                        long minutes = timeLeft / 1200;
+                        long seconds = (timeLeft % 1200) / 20;
+
+                        sender.sendMessage(Text.literal("§cТы недавно уже тянул карту! Подожди еще " + minutes +
+                                " мин. " + seconds + " сек."), false);
+                        return;
+                    }
+                }
+
+                Deck deck = new Deck();
+                Card card = deck.getDeck().poll();
+
+                Suit trumpSuit = Suit.values()[Random.random(Suit.values().length) - 1];
+                String suitName = Deck.getSuitName(card.getSuit());
+                String rankName = card.getRank().toString();
+
+                Text cardMessage = Text.literal("§e" + playerName + " тянет карту: §l" + rankName + " " + suitName + "§r");
+                Text trumpMessage = Text.literal("§6Козырь на этот ход: " + Deck.getSuitName(trumpSuit));
+
+                if (card.getSuit() == trumpSuit) {
+                    cardMessage = cardMessage.copy().append(" §a(Это козырь!)");
+                }
+
+                sender.getServer().getPlayerManager().broadcast(cardMessage, false);
+                sender.getServer().getPlayerManager().broadcast(trumpMessage, false);
+
+                lastCardDrawTime.put(playerID, currentTime);
             }
         });
     }

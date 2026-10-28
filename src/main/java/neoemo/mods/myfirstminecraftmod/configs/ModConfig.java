@@ -9,4 +9,5 @@ public class ModConfig {
     public String triggerMessage = "Привет, NeoEmo";
     public String replyMessage = "Привет, " + Tags.getPlayer();
     public String random = "random";
+    public String cardTrigger = "Take a new card";
 }
