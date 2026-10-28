@@ -2,6 +2,7 @@ package neoemo.mods.myfirstminecraftmod;
 
 import neoemo.mods.myfirstminecraftmod.configs.ModConfig;
 import neoemo.mods.myfirstminecraftmod.managers.ConfigManager;
+import neoemo.mods.myfirstminecraftmod.utils.Random;
 import neoemo.mods.myfirstminecraftmod.utils.Tags;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -9,6 +10,7 @@ import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,12 +57,31 @@ public class Myfirstminecraftmod implements ModInitializer {
         ServerMessageEvents
                 .CHAT_MESSAGE.register((message, sender, params) -> {
             String messageText = message.getSignedContent();
+            String playerName = sender.getName().getString();
+            String randomCheck = messageText.trim().toLowerCase();
+            String randomTrigger = CONFIG.random.toLowerCase();
+
 
             if (messageText.equalsIgnoreCase(CONFIG.triggerMessage)) {
-                String playerName = sender.getName().getString();
-
                 String replyMessage = CONFIG.replyMessage.replace(Tags.getPlayer(), playerName);
                 sender.sendMessage(Text.literal(replyMessage), false);
+            }
+
+            if (randomCheck.startsWith(randomTrigger)) {
+                try {
+                    int max = Integer.parseInt(randomCheck.substring(randomTrigger.length()).trim());
+                    if (max > 0) {
+                        int result = Random.random(max);
+                        Text actionMessage = Text.literal("* " + playerName + " выпало число " + result + " из " + max)
+                                .formatted(Formatting.ITALIC);
+
+                        sender.getServer().getPlayerManager().broadcast(actionMessage, false);
+                    } else {
+                        sender.sendMessage(Text.literal("§cЧисло должно быть больше нуля!"), false);
+                    }
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(Text.literal("§cОшибка! Напиши число. Пример: " + CONFIG.random + " 10"), false);
+                }
             }
         });
     }

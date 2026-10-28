@@ -8,4 +8,5 @@ public class ModConfig {
     public String joinMessage3 = "Напиши \"Привет, NeoEmo\" и узнаешь!";
     public String triggerMessage = "Привет, NeoEmo";
     public String replyMessage = "Привет, " + Tags.getPlayer();
+    public String random = "random";
 }
